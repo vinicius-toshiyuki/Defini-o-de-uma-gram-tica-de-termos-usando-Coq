@@ -3,7 +3,7 @@
 
 \usepackage[margin=3.5cm]{geometry}
 
-\usepackage{hyperref}
+\usepackage{hyperref,color,amsthm}
 \hypersetup{
 	colorlinks=true,
 	linkcolor=blue,
@@ -12,6 +12,15 @@
 }
 \usepackage{mathtools}
 \usepackage{minted}
+\newcommand{\nantes}[1]{\textcolor{blue}{#1}}
+\newcommand{\tty}[1]{{\tt #1}}
+
+%%% macros para teoremas %%
+\newtheorem{defi}{Definição}
+\newtheorem{exam}{Exemplo}
+\newtheorem{lem}{Lemma}
+\newtheorem{obs}{Observação}
+\newtheorem{teo}{Teorema}
 
 \title{Definição de uma gramática de termos usando Coq}
 \author{Vinícius T M Sugimoto}
@@ -92,6 +101,29 @@ relevando os problemas apresentados.
 
 Na seção seguinte é apresentado como está gramática é definida no Assistente de Provas Coq bem como como algumas propriedades desta gramática são provadas.
 
+\nantes{
+\begin{defi}[Pré-Termos]
+Sejam $\Sigma=\{\tty{Un},{\tt Pr},{\tt F}\}$ um conjunto finito de símbolos tais que $\tty{Un}$ é unário, $\tty{Pr}$ é binário e $\tty{F}$ é um símbolo de função de aridade variável, e $X$ um conjunto de variáveis tal que $X\cap \Sigma=\emptyset$. O conjunto dos pré-termos $T(\Sigma,X)$ construído a partir de $\Sigma$ e $X$, pode definido indutivo da seguinte maneira:
+\begin{itemize}
+    \item $X\subset T(\Sigma,X)$, i.e., toda variável é um pré-termo;
+    \item Se $t$ é um pré-termo, então $\tty{Un}(t)$ é um pré-termo;
+    \item Se $t_1$ e $t_2$ são  pré-termos, então $\tty{Pr}(t_1,t_2)$ é um pré-termo;
+     \item Se $t_1, t_2, \ldots, t_n$ são  pré-termos, então $\tty{F}(t_1,t_2,\ldots, t_n)$ é um pré-termo, para todo $n\in \mathbf{N}^+$.
+\end{itemize}
+\end{defi}
+}
+
+
+\nantes{
+\begin{exam}
+Note que para variáveis $x_1,x_2,x_3$ de $X$ temos os seguintes pré-termos:
+\begin{itemize}
+    \item $x_1,x_2,x_3$ são pré-termos;
+    \item $\tty{F}(x_1)$,$\tty{F}(x_1,x_2)$, $\tty{F}(x_1,x_2,x_3,x_1)$, etc.
+\end{itemize}
+A definição de pré-termos permite que a função $F$ seja aplicada a uma sequência de termos com tamanho variável, mas finito.
+\end{exam}
+}
 \section{Assistente de Provas Coq}
 \label{section:assistente_coq}
 
