@@ -1,0 +1,130 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+
+\usepackage[margin=3.5cm]{geometry}
+
+\usepackage{hyperref}
+\hypersetup{
+	colorlinks=true,
+	linkcolor=blue,
+	filecolor=magenta,
+	urlcolor=cyan,
+}
+\usepackage{mathtools}
+\usepackage{minted}
+
+\title{Definição de uma gramática de termos usando Coq}
+\author{Vinícius T M Sugimoto}
+\date{Dezembro 2020}
+
+\begin{document}
+
+\maketitle
+
+\section{Introdução}
+\label{section:introducao}
+
+
+A formalização de uma gramática é um passo essencial para o estudo de problemas complexos.
+Uma vez que uma gramática está bem definida, ela ajuda a fazer com que o progresso no trabalho
+em alguma determinado problema também esteja bem definido e correto. No entanto, a definição
+de uma gramática por si só pode ser considerada um problema, que também precisa ser bem definido.
+Assim, existem ferramentas que auxiliam na formalização de provas de diversos problemas, que por
+sua vez já estão corretos e garantem que seus resultados também estejam.
+
+A formalização de uma gramática de um problema em termos de uma linguagem bem estruturada é
+extremamente importante pois permite com que futuras definições a partir dessa gramática utilizem
+resultados provados previamente em outros momentos e por outras pessoas. A título de exemplo, pode-se
+considerar a construção dos números naturais a partir dos axiomas de Peano. Sem uma definição clara
+desses números é difícil dizer quais resultados são válidos ou não, por outro lado, com uma definição
+bem estruturada podemos utilizar resultados obtidos sobre esses números há séculos. Neste trabalho
+apresenta-se a definição de uma gramática simples de termos e funções, que por sua vez poderá ser
+utilizada para estudar problemas mais complexos e interessantes.
+
+% Segundo
+
+% Terceiro
+
+Para a construção da gramática proposta neste trabalho, precisa-se que seja possível mostrar que essa
+construção está correta. Por um lado este trabalho poderia tentar provar a corretude de tudo do que a
+gramática a ser apresentada depende, assim concluindo a corretude deste trabalho também. Mas quanto
+mais este trabalho tem que provar maior a chance de um erro acontecer ou da qualidade das provas não
+serem como desejadas. Assim, a melhor escolha é utilizar os resultados cuidadadosamente provados por
+outros trabalhos. Mais especificamente, neste trabalho será utilizado o programa Assistente de Provas
+Coq e diversos resultados provados e bem definidos que o Coq traz.
+
+Na seções seguintes, \ref{section:a_gramatica} e \ref{section:assistente_coq}, será mostrado em maiores
+detalhes a forma da gramática que será construída e a maneira que foi definida utilizando o assistente de provas Coq, respectivamente. Depois, na seção \ref{section:resultados}, serão apresentados os
+resultados provados obtidos sobre a definição da gramática.
+
+\section{A Gramática}
+\label{section:a_gramatica}
+
+Este trabalho constrói uma gramática de termos recursiva com quatro tipos de termos. Esses termos tem  tentam representar a definição de funções, com aridades possivelmente infinitas. Assim, os termos desta
+gramática podem ser: uma Variável, que são representadas por números naturais e representam argumentos
+e parâmetros de funções, termos Unitários, que encapsulam um outro termo da gramática, termos Pares,
+que encapsulam dois outros termos da gramática, e Funções, que representam funções sobre variáveis e
+são representadas com um natural, sua aridade, e um termo, que expande para seus argumentos ou
+parâmetros, em forma de variáveis. A gramática pode ser visualizada melhor na seguinte notação:
+
+
+\begin{equation}
+	\begin{split}
+		\langle NATURAL \rangle  & := 0 | 1 | 2 | ... \\
+		\langle TERMO \rangle    & :=
+			\langle VARIAVEL \rangle |
+			\langle UNITARIO \rangle |
+			\langle PAR \rangle |
+			\langle FUNCAO \rangle \\
+		\langle VARIAVEL \rangle & := \langle NATURAL \rangle \\
+		\langle UNITARIO \rangle & := \langle TERMO \rangle \\
+		\langle PAR \rangle      & := \langle TERMO \rangle \langle TERMO \rangle \\
+		\langle FUNCAO \rangle   & := \langle NATURAL \rangle \langle TERMO \rangle
+	\end{split}
+\end{equation}
+
+Essa gramática com esta definição, apesar de poder ser bem definida, não é tão versátil. Por exemplo,
+os termos de funções da gramática, apesar de terem um natural associado para indicar sua aridade, nada
+impede que o termo associado não tenha essa aridade. Ainda sobre as funções, elas, na definição
+apresentada, são limitadas a uma função para cada diferente aridade, isso pela falta de um
+identificador associado às funções. Ainda assim, para um primeiro momento, o trabalho foi realizado
+relevando os problemas apresentados.
+
+Na seção seguinte é apresentado como está gramática é definida no Assistente de Provas Coq bem como como algumas propriedades desta gramática são provadas.
+
+\section{Assistente de Provas Coq}
+\label{section:assistente_coq}
+
+O assistente de provas Coq é um programa que auxilia o desenvolvimento de provas formais. Suas
+aplicações comuns incluem a certificação de propriedades de linguagens de programação, % cite coq inria
+formalização da matemática e ensino. Neste trabalho o Coq é utilizado para auxiliar na formalização da
+definição da gramática deste trabalho e na prova de suas propriedades.
+
+O programa é gratuito e pode ser obtido em diversas versões no site oficial
+\url{https://coq.inria.fr/}. Para este trabalho foi utilizada a versão 8.12 do Coq, tendo sido
+compilada a partir do fonte em um computador com Linux Ubuntu 20.04 64-bits.
+
+Com a ferramenta Coq, a definição da gramática apresentada na seção \ref{section:a_gramatica} é
+dividida em duas partes e tem uma sintaxe diferente, própria do Coq. O trecho de código Coq a seguir
+mostra como um gramática recursiva equivalente à mostrada na seção \ref{section:a_gramatica} é
+construída.
+
+\begin{minted}{coq}
+	Inductive Var : Set := var : nat -> Var.
+
+	Inductive pterm : Type :=
+		V : Var -> pterm
+	  | Un: pterm -> pterm
+	  | Pr: pterm -> pterm -> pterm
+	  | F : nat -> pterm -> pterm
+	.
+\end{minted}
+
+\section{Resultados}
+\label{section:resultados}
+
+\end{document}
+
+
+
+
