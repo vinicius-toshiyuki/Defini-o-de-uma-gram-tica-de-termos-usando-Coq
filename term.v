@@ -1,4 +1,4 @@
-Require Import List ListSet Arith.
+Require Import Arith.
 
 (*{{{1 var
   Define type Var.
@@ -30,9 +30,9 @@ Inductive pterm : Type :=
 (*{{{1 pterm notations
   Defines pterm notations for readability.
 *)
-Local Notation "<< A , B >>" := (Pr A B) (at level 71, format " '<<' A ','  B '>>' ").
-Local Notation "#( A )" := (Un A) (at level 71, format "'#(' A ')'").
-Local Notation "$ A" := (V (var A)) (at level 71, format "'$' A").
+Notation "<< A , B >>" := (Pr A B) (at level 71, format " '<<' A ','  B '>>' ").
+Notation "#( A )" := (Un A) (at level 71, format "'#(' A ')'").
+Notation "$ A" := (V (var A)) (at level 71, format "'$' A").
 (*1}}}*)
     
 (*{{{1 pterm_eq
@@ -52,7 +52,7 @@ Fixpoint pterm_eq (a b: pterm): bool :=
   | _, _                   => false
   end.
 
-Local Notation "A = B" := (pterm_eq A B).
+Notation "A = B" := (pterm_eq A B).
 
 (*{{{2 Example*)
 Compute pterm_eq (<<$3, $1>>) (<<$3, $1>>).

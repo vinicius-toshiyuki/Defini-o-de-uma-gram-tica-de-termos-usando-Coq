@@ -1,38 +1,71 @@
 \documentclass{article}
-\usepackage[utf8]{inputenc}
 
+% Pacotes %%%%%%%%%%%%%%%%%%%%%%%%% {{{
+% Pacote para margem %%%%%%%%%%%%%% {{{
+% Ajusta a margem do documento
 \usepackage[margin=3.5cm]{geometry}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% }}}
 
-\usepackage{hyperref,color,amsthm}
-\hypersetup{
-	colorlinks=true,
-	linkcolor=blue,
-	filecolor=magenta,
-	urlcolor=cyan,
-}
+% Pacote para URL %%%%%%%%%%%%%%%%% {{{
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=blue,filecolor=magenta,urlcolor=cyan,}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% }}}
+
+% Pacote de destaque de sintaxe %%% {{{
+% Corrige o diretório de saída do minted
+\usepackage[abspath]{currfile}
+\getabspath{\jobname.log}
+% Carrega o minted (para destaque de sintaxe Coq)
+\usepackage[newfloat, outputdir=\theabsdir]{minted}
+% Configura ambiente referenciável
+\usepackage{caption}
+\newenvironment{codigo}{\captionsetup{type=listing}}{}
+\SetupFloatingEnvironment{listing}{name=Trecho de código}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% }}}
+
+% Pacote de data %%%%%%%%%%%%%%%%%% {{{
+\usepackage[portuguese]{babel}
+\usepackage[useregional]{datetime2}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% }}}
+
+% Outros pacotes %%%%%%%%%%%%%%%%%% {{{
+\usepackage{color}
+\usepackage{amsthm}
 \usepackage{mathtools}
-\usepackage{minted}
-\newcommand{\nantes}[1]{\textcolor{blue}{#1}}
-\newcommand{\tty}[1]{{\tt #1}}
+\usepackage[utf8]{inputenc}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% }}}
 
-%%% macros para teoremas %%
+% Custom commands %%%%%%%%%%%%%%%%% {{{
+\newcommand{\nantes}[1]{\textcolor{blue}{#1}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% }}}
+
+% Macros de teoremas %%%%%%%%%%%%%% {{{
+\newtheorem{definicao}{Definição}
+\newtheorem{exemplo}{Exemplo}
+\newtheorem{lema}{Lemma}
+\newtheorem{observacao}{Observação}
+\newtheorem{teorema}{Teorema}
+
 \newtheorem{defi}{Definição}
 \newtheorem{exam}{Exemplo}
 \newtheorem{lem}{Lemma}
 \newtheorem{obs}{Observação}
 \newtheorem{teo}{Teorema}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% }}}
 
+% Título %%%%%%%%%%%%%%%%%%%%%%%%%% {{{
 \title{Definição de uma gramática de termos usando Coq}
 \author{Vinícius T M Sugimoto}
-\date{Dezembro 2020}
+\date{\today}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% }}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% }}}
 
 \begin{document}
 
 \maketitle
 
-\section{Introdução}
+\section{Introdução} % {{{
 \label{section:introducao}
-
 
 A formalização de uma gramática é um passo essencial para o estudo de problemas complexos.
 Uma vez que uma gramática está bem definida, ela ajuda a fazer com que o progresso no trabalho
@@ -63,19 +96,21 @@ outros trabalhos. Mais especificamente, neste trabalho será utilizado o program
 Coq e diversos resultados provados e bem definidos que o Coq traz.
 
 Na seções seguintes, \ref{section:a_gramatica} e \ref{section:assistente_coq}, será mostrado em maiores
-detalhes a forma da gramática que será construída e a maneira que foi definida utilizando o assistente de provas Coq, respectivamente. Depois, na seção \ref{section:resultados}, serão apresentados os
+detalhes a forma da gramática que será construída e a maneira que foi definida utilizando o assistente
+de provas Coq, respectivamente. Depois, na seção \ref{section:resultados}, serão apresentados os
 resultados provados obtidos sobre a definição da gramática.
+% }}}
 
-\section{A Gramática}
+\section{A Gramática} % {{{
 \label{section:a_gramatica}
 
-Este trabalho constrói uma gramática de termos recursiva com quatro tipos de termos. Esses termos tem  tentam representar a definição de funções, com aridades possivelmente infinitas. Assim, os termos desta
+Este trabalho constrói uma gramática de termos recursiva com quatro tipos de termos. Esses termos tem
+tentam representar a definição de funções, com aridades possivelmente infinitas. Assim, os termos desta
 gramática podem ser: uma Variável, que são representadas por números naturais e representam argumentos
 e parâmetros de funções, termos Unitários, que encapsulam um outro termo da gramática, termos Pares,
 que encapsulam dois outros termos da gramática, e Funções, que representam funções sobre variáveis e
 são representadas com um natural, sua aridade, e um termo, que expande para seus argumentos ou
 parâmetros, em forma de variáveis. A gramática pode ser visualizada melhor na seguinte notação:
-
 
 \begin{equation}
 	\begin{split}
@@ -92,39 +127,51 @@ parâmetros, em forma de variáveis. A gramática pode ser visualizada melhor na
 	\end{split}
 \end{equation}
 
+Para um melhor entendimento, uma leitura dessa definição em linguagem mais natural pode ser dada como
+na definição \ref{definicao:pre-termos} e alguns exemplos de termos desta gramática são mostrados no
+exemplo \ref{exemplo:pre-termos}.
+
+\begin{definicao}[Pré-termos]
+	Seja $\Sigma=\{\texttt{Un, Pr, F}\}$ um conjunto finito de símbolos tais que $\texttt{Un}$ é
+	unário, $\texttt{Pr}$ é binário e $\texttt{F}$ é um símbolo de função de aridade variável, e $X$ um
+	conjunto de variáveis tal que $X \cap \Sigma = \emptyset$.
+	O conjunto dos termos $T(\Sigma, X)$ construído a partir de $\Sigma$ e $X$, pode definido indutivo
+	da seguinte maneira:
+	\begin{itemize}
+		\item $X \subset T(\Sigma, X)$, i.e., toda variável é um termo;
+		\item Se $t$ é um termo, então $\texttt{Un}(t)$ é um termo;
+		\item Se $t_1$ e $t_2$ são  termos, então $\texttt{Pr}(t_1, t_2)$ é um termo;
+	 	\item Se $t_1, t_2, \ldots, t_n$ são  termos, então $\texttt{F}(t_1,t_2,\ldots, t_n)$ é um
+			 termo, para todo $n \in \mathbf{N}^+$.
+	\end{itemize}
+	\label{definicao:pre-termos}
+\end{definicao}
+
+\begin{exemplo}
+	Note que para variáveis $x_1,x_2,x_3$ de $X$ temos os seguintes termos:
+	\begin{itemize}
+		\item $x_1, x_2, x_3$ são termos;
+		\item $\texttt{F}(x_1)$,$\texttt{F}(x_1, x_2)$, $\texttt{F}(x_1, x_2, x_3, x_1)$, etc.
+	\end{itemize}
+	\label{exemplo:pre-termos}
+\end{exemplo}
+
+A definição de termos permite que a função $F$ seja aplicada a uma sequência de termos com tamanho
+variável, mas finito.
 Essa gramática com esta definição, apesar de poder ser bem definida, não é tão versátil. Por exemplo,
 os termos de funções da gramática, apesar de terem um natural associado para indicar sua aridade, nada
 impede que o termo associado não tenha essa aridade. Ainda sobre as funções, elas, na definição
 apresentada, são limitadas a uma função para cada diferente aridade, isso pela falta de um
 identificador associado às funções. Ainda assim, para um primeiro momento, o trabalho foi realizado
-relevando os problemas apresentados.
+relevando os problemas apresentados e, por isso, os termos dessa gramática serão chamados daqui em
+diante de pré-termos.
 
-Na seção seguinte é apresentado como está gramática é definida no Assistente de Provas Coq bem como como algumas propriedades desta gramática são provadas.
+Na seção seguinte é apresentado como está gramática é definida no Assistente de Provas Coq bem como como
+algumas propriedades desta gramática são provadas.
 
-\nantes{
-\begin{defi}[Pré-Termos]
-Sejam $\Sigma=\{\tty{Un},{\tt Pr},{\tt F}\}$ um conjunto finito de símbolos tais que $\tty{Un}$ é unário, $\tty{Pr}$ é binário e $\tty{F}$ é um símbolo de função de aridade variável, e $X$ um conjunto de variáveis tal que $X\cap \Sigma=\emptyset$. O conjunto dos pré-termos $T(\Sigma,X)$ construído a partir de $\Sigma$ e $X$, pode definido indutivo da seguinte maneira:
-\begin{itemize}
-    \item $X\subset T(\Sigma,X)$, i.e., toda variável é um pré-termo;
-    \item Se $t$ é um pré-termo, então $\tty{Un}(t)$ é um pré-termo;
-    \item Se $t_1$ e $t_2$ são  pré-termos, então $\tty{Pr}(t_1,t_2)$ é um pré-termo;
-     \item Se $t_1, t_2, \ldots, t_n$ são  pré-termos, então $\tty{F}(t_1,t_2,\ldots, t_n)$ é um pré-termo, para todo $n\in \mathbf{N}^+$.
-\end{itemize}
-\end{defi}
-}
+% }}}
 
-
-\nantes{
-\begin{exam}
-Note que para variáveis $x_1,x_2,x_3$ de $X$ temos os seguintes pré-termos:
-\begin{itemize}
-    \item $x_1,x_2,x_3$ são pré-termos;
-    \item $\tty{F}(x_1)$,$\tty{F}(x_1,x_2)$, $\tty{F}(x_1,x_2,x_3,x_1)$, etc.
-\end{itemize}
-A definição de pré-termos permite que a função $F$ seja aplicada a uma sequência de termos com tamanho variável, mas finito.
-\end{exam}
-}
-\section{Assistente de Provas Coq}
+\section{Assistente de Provas Coq} % {{{
 \label{section:assistente_coq}
 
 O assistente de provas Coq é um programa que auxilia o desenvolvimento de provas formais. Suas
@@ -137,26 +184,227 @@ O programa é gratuito e pode ser obtido em diversas versões no site oficial
 compilada a partir do fonte em um computador com Linux Ubuntu 20.04 64-bits.
 
 Com a ferramenta Coq, a definição da gramática apresentada na seção \ref{section:a_gramatica} é
-dividida em duas partes e tem uma sintaxe diferente, própria do Coq. O trecho de código Coq a seguir
-mostra como um gramática recursiva equivalente à mostrada na seção \ref{section:a_gramatica} é
-construída.
+dividida em duas partes e tem uma sintaxe diferente, própria do Coq. O trecho de código
+\ref{codigo:pre-termos} a seguir mostra como um gramática recursiva equivalente à mostrada na
+definição \ref{definicao:pre-termos} é construída.
 
+\begin{codigo}
 \begin{minted}{coq}
 	Inductive Var : Set := var : nat -> Var.
-
 	Inductive pterm : Type :=
-		V : Var -> pterm
+	    V : Var -> pterm
 	  | Un: pterm -> pterm
 	  | Pr: pterm -> pterm -> pterm
 	  | F : nat -> pterm -> pterm
 	.
 \end{minted}
+\caption{Definição do pterm}
+\label{codigo:pre-termos}
+\end{codigo}
 
-\section{Resultados}
+Com o auxílio do Coq e a definição no formato de \ref{codigo:pre-termos}, pode-se provar propriedades
+sobre a gramática definidida. O Coq permite a definição de funções sobre o tipo de dados definido pelos
+pré-termos e prova formal de lemas e teoremas usando táticas de provas já definidas em bibliotecas
+padrão, em bibliotecas externas ou pelo próprio usuário. O formato de uma definição de uma função no
+Coq é como demonstrado no trecho de código em \ref{codigo:funcao}. Como a gramática de pré-termos
+definida neste trabalho representa um tipo indutivo, a definição de funções recursivas também é
+possível pelo Coq, sendo essas bastante utilizadas neste trabalho. O formato de uma definição de uma
+função recursiva no Coq é como demonstrado no trecho de código em \ref{codigo:funcao_recursiva}. 
+
+\begin{codigo}
+\begin{minted}{coq}
+	Definition fun1 (parâmetros: Tipo): Tipo :=
+	  (* corpo da função *).
+\end{minted}
+\caption{Modelo de função}
+\label{codigo:funcao}
+\end{codigo}
+
+\begin{codigo}
+\begin{minted}{coq}
+	Fixpoint fun2 (parâmetros: Tipo): Tipo :=
+	  (*
+	  corpo da função com chamada
+	  recursiva sobre o subproduto
+	  de algum parâmetro definido
+	  *).
+\end{minted}
+\caption{Modelo de função recursiva}
+\label{codigo:funcao_recursiva}
+\end{codigo}
+
+Com a linguagem Coq, pode-se, então, declarar funções sobre a gramática de pré-termos ou outros tipos
+de dados como demonstrado no exemplo \ref{exemplo:funcoes_pre-termos}, em que são demonstradas as
+funções \texttt{soma\_ab} e \texttt{soma\_ate\_n}, respectivamente. As funções apresentadas no exemplo
+\ref{exemplo:funcoes_pre-termos} são simples, mas exemplificam a estrutura sintática de uma definição.
+Uma vez que a sintaxe da linguagem se torne familiar, funções mais complexas e úteis podem ser
+implementadas.
+
+\begin{exemplo}
+	\label{exemplo:funcoes_pre-termos}
+\end{exemplo}
+\begin{codigo}
+\begin{minted}{coq}
+	Definition soma_ab (a b: nat): nat := a + b.
+\end{minted}
+\caption{Função que dois naturais $a$ e $b$}
+\label{codigo:soma_ab}
+\end{codigo}
+
+\begin{codigo}
+\begin{minted}{coq}
+	Fixpoint soma_ate_n (n: nat): nat :=
+	  match n with
+		0 => 0
+		S p => n + soma_ate_n p
+		(* chamada recursiva sobre o subproduto de n = p *)
+	  end.
+\end{minted}
+\caption{Função que soma todos os naturais até $n$}
+\label{codigo:soma_ate_n}
+\end{codigo}
+
+O Coq também oferece funcionalidades para provar propriedades sobre diferentes tipos de dados, como,
+por exemplo, os pré-termos definidos neste trabalho. A sintaxe para esses tipos de provas são como
+demonstrado nos trechos de código em \ref{codigo:provas}. No exemplo
+\ref{exemplo:decidibilidade_naturais}, é apresentada a prova da decidibidade da igualdade dos naturais
+usando uma tática padrão do Coq, o que mostra o quão poderoso pode ser o auxílio do Coq para se fazer
+provas formais.
+
+\begin{codigo}
+\begin{minted}{coq}
+	Definition def1: (* definição *).
+	Proof.
+	  (* passos da prova *)
+	Defined.
+
+	Lemma lemma1: (* lema *).
+	Proof.
+	  (* passos da prova *)
+	Qed.
+
+	Theorem theo1: (* teorema *).
+	Proof.
+	  (* passos da prova *)
+	Qed.
+\end{minted}
+\caption{Definições, lemas e teoremas em Coq}
+\label{codigo:provas}
+\end{codigo}
+
+\begin{exemplo}
+	\label{exemplo:decidibilidade_naturais}
+\end{exemplo}
+\begin{codigo}
+\begin{minted}{coq}
+	Lemma nat_eqdec: forall (m n: nat), {m = n} + {m <> n}.
+	Proof.
+	  decide equality.
+	Defined.
+\end{minted}
+\caption{Prova da decidibilidade da igualdade em naturais}
+\label{codigo:decidibilidade_naturais}
+\end{codigo}
+
+A tática utilizada, \texttt{decide equality}, é poderosa o suficiente para terminar a prova por si só.
+Provas como esta não são apenas exemplos de como o Coq pode ser utilizado, mas também podem ser
+utilizadas em problemas e trabalhos reais, de fato, esta é uma prova que é utilizada neste trabalho
+para auxiliar na construção da demonstração da decidibilidade da igualdade para os pré-termos
+definidos. Na seção seguinte serão apresentados as propriedades e provas feitas sobre os pré-termos com
+o Coq e como o progresso do trabalho foi feito até chegar aos resultados finais.
+% }}}
+
+\section{Resultados} % {{{
 \label{section:resultados}
 
+Neste trabalho, uma gramática de pré-termos foi definida (\ref{section:a_gramatica}), mas o seu
+objetivo é demonstrar propriedades sobre essa gramática. Mais especificamente, este trabalho foca e
+demonstrar propriedades sobre os pré-termos de tipo \texttt{F}, que representam funções sobre outros
+pré-termos. Nesta seção serão apresentadas funções definidas sobre pré-termos e em seguida serão
+apresentados propriedades que foram provadas sobre pré-termos para a definição dessas funções.
+
+Os resultados finais alcançados neste projeto são funções sobre que computam subtermos de um pré-termo,
+a quantidade de parâmetros que um pré-termo \texttt{F} está recebendo, se um pré-termo \texttt{F}
+representa uma função bem formada, a quantidade de ocorrências de um pré-termo em outro pré-termo etc.
+Na definição apresentadas a seguir (\ref{definicao:parameter}, \ref{definicao:is_F}, \ref{definicao:count_var}, \ref{definicao:psubterm}, \ref{definicao:poccur}, \ref{definicao:plength}, \ref{definicao:pterm_iarg}, \ref{definicao:pterm_ith}), as assinaturas dessas funções e de outras são apresentadas junto a uma definição de suas funcionalidades.
+
+\begin{definicao}[parameter]
+	Seja $parameter: pterm \rightarrow nat$ uma função que computa a quantidade de parâmetros que um
+	pré-termo recebe, se o termo raiz desse pré-termo é um \texttt{F}. A assinatura de
+	\texttt{parameter} como uma função recursiva é:
+
+	\texttt{Fixpoint parameter (t: pterm): nat}
+	\label{definicao:parameter}
+\end{definicao}
+
+\begin{definicao}[is\_F]
+	Seja $is\_F: pterm \rightarrow bool$ uma função que computa se um pré-termo $t$ representa uma
+	função bem formada, isto é, se $t$ é um \texttt{F} e sua aridade $n$ é igual a $parameter(t)$. A
+	assinatura de \texttt{is\_F} como uma função recursiva é:
+
+	\texttt{Fixpoint is\_F (t: pterm): bool}
+	\label{definicao:is_F}
+\end{definicao}
+
+\begin{definicao}[count\_var]
+	Seja $count\_var: pterm \rightarrow nat$ uma função que computa a quantidade de pré-termos
+	\texttt{V} em um pré-termo. A assinatura de \texttt{count\_var} como uma função recursiva é:
+
+	\texttt{Fixpoint count\_var (t: pterm): nat}
+	\label{definicao:count_var}
+\end{definicao}
+
+\begin{definicao}[psubterm]
+	Seja $psubterm: pterm \rightarrow \mathcal{P}(pterm)$, em que $\mathcal{P}(pterm)$ é o conjunto das
+	partes de pterm, uma função que computa os subtermos de um pré-termo. A assinatura de
+	\texttt{psubterm} como uma função recursiva é:
+
+	\texttt{Fixpoint psubterm (t: pterm): list pterm}
+	\label{definicao:psubterm}
+\end{definicao}
+
+\begin{definicao}[poccur]
+	Seja $poccur: pterm \times pterm \rightarrow nat$ uma função que computa a quantidade de
+	ocorrências de um pré-termo $i$ em um pré-termo $t$. A assinatura de \texttt{poccur} como uma
+	função recursiva é:
+
+	\texttt{Fixpoint poccur (i t: pterm): nat}
+	\label{definicao:poccur}
+\end{definicao}
+
+\begin{definicao}[plength]
+	Seja $plength: pterm \rightarrow nat$ uma função que computa o comprimento de um pré-termo, isto é,
+	dada uma representação em árvore de um pré-termo, como na definição
+	\ref{definicao:pre-termo_arvore}, a quantidade de nós dessa árvore. A assinatura de
+	\texttt{plength} como uma função recursiva é:
+
+	\texttt{Fixpoint plength (t: pterm): nat}
+	\label{definicao:plength}
+\end{definicao}
+
+\begin{definicao}[pterm\_iarg]
+	Seja $pterm\_iarg: pterm \times nat -> pterm$ uma função que computa o $i$-ésimo argumento de um
+	pré-termo $t$, se $t$ é um \texttt{F}. Se $i$ é um índice inválido a função computa $\emptyset$. A
+	assinatura de \texttt{pterm\_iarg} como uma função recursiva é:
+
+	\texttt{Fixpoint pterm\_iarg (t: pterm) (i: nat): option pterm}
+	\label{definicao:pterm_iarg}
+\end{definicao}
+
+\begin{definicao}[pterm\_ith]
+	Seja $pterm\_ith: pterm \times nat \rightarrow pterm$ uma função que computa o $i$-ésimo termo de
+	um pré-termo, isto é, dada a representação em árvore de um pré-termo, como dada na definição
+	\ref{definicao:pre-termo_arvore}, computa o $i$-ésimo nó da árvore em uma busca em largura. A
+	assinatura de $pterm\_ith$ é: 
+
+	\texttt{Definition pterm\_ith (t: pterm) (i: nat): option pterm}
+	\label{definicao:pterm_ith}
+\end{definicao}
+
+\begin{definicao}[Representação em árvore de um pré-termo]
+	\label{definicao:pre-termo_arvore}
+\end{definicao}
+
+% }}}
+
 \end{document}
-
-
-
-

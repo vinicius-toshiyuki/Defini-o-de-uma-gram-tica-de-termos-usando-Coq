@@ -5,3 +5,7 @@
 *.out
 *.pyg
 *.synctex.gz
+*.glob
+*.vo
+*.vok
+*.vos
