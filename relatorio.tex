@@ -23,8 +23,13 @@
 \SetupFloatingEnvironment{listing}{name=Trecho de código}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% }}}
 
+% Pacote de idiomas %%%%%%%%%%%%%%% {{{
+\RequirePackage[american, brazilian, brazil, portuguese]{babel}
+\usepackage[portuguese]{babelbib}
+\selectlanguage{american}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% }}}
+
 % Pacote de data %%%%%%%%%%%%%%%%%% {{{
-\usepackage[portuguese]{babel}
 \usepackage[useregional]{datetime2}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% }}}
 
@@ -132,7 +137,7 @@ Na seção seguinte é apresentado como está gramática é definida no Assisten
 
 O assistente de provas Coq é um programa que auxilia o desenvolvimento de provas formais. Suas aplicações comuns incluem a certificação de propriedades de linguagens de programação, formalização da matemática e ensino. Neste trabalho o Coq é utilizado para auxiliar na formalização da definição da gramática deste trabalho e na prova de suas propriedades. % cite coq inria 
 
-O programa é gratuito e pode ser obtido em diversas versões no site oficial \url{https://coq.inria.fr/}. Para este trabalho foi utilizada a versão 8.12 do Coq, tendo sido compilada a partir do fonte em um computador com Linux Ubuntu 20.04 64-bits.
+O programa é gratuito e pode ser obtido em diversas versões no site oficial \cite{coqinria}. Para este trabalho foi utilizada a versão 8.12 do Coq, tendo sido compilada a partir do fonte em um computador com Linux Ubuntu 20.04 64-bits.
 
 Com a ferramenta Coq, a definição da gramática apresentada na seção \ref{section:a_gramatica} é dividida em duas partes e tem uma sintaxe diferente, própria do Coq. O trecho de código \ref{codigo:pre-termos} a seguir mostra como um gramática recursiva equivalente à mostrada na definição \ref{definicao:pre-termos} é construída.
 
@@ -334,5 +339,11 @@ Os resultados finais alcançados neste projeto são funções sobre que computam
 Pelo exemplo \ref{exemplo:pre-termo_arvore} pode-se perceber alguns detalhes sobre essa gramática e as funções implementadas sobre seus termos. O primeiro é que apesar de termos do tipo \texttt{F} estarem associado a um $n$ que representa sua aridade, não há nada na gramática que impessa que um \texttt{F} tenha mais ou menos termos que representam seus argumentos do que $n$. O segundo é que os termos \texttt{Pr} são omitidos na representação em árvore de um pré-termo. Esse detalhe tem um impacto direto no funcionamento de funções como \texttt{plength} (\ref{definicao:plength}). Além disso, pode-se perceber que qualquer outra $F (5)$ que exista, será a mesma $F (5)$ do exemplo \ref{exemplo:pre-termo_arvore}, pois um termo \texttt{F} não acompanha um identificador, assim só existe um \texttt{F} para cada aridade $n$.
 
 Este trabalho apresentou a construção de uma gramática e funções e propriedades que puderam ser construídas a partir dela com o auxílio do Coq. Entretanto, como apontado previamente, essa gramática, apesar de correta, apresenta algumas fraquezas. Para que possa ser utilizada mas extensamente e com problemas mais complexos, alguns ajustes poderiam ser feitos a essa gramática, como, por exemplo, restringir o número de argumentos que um termo \texttt{F} pode receber a aridade associada a ele, construir os termos \texttt{F} de modo que tenham um identificador associado, possibilitando infinitas definições de funções diferentes com uma mesma aridade, e provar novas propriedades sobre essa nova gramática.
+
+
+% Referências
+\nocite{*}
+\bibliography{bibliografia}
+\bibliographystyle{babunsrt}
 
 \end{document}
